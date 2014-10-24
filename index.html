@@ -1,71 +1,206 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Drug-alcohol-mentions by rhiever</title>
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>Drug-alcohol-mentions</h1>
-        <p></p>
+body {
+  font: 14px sans-serif;
+}
 
-        <p class="view"><a href="https://github.com/rhiever/drug-alcohol-mentions">View the Project on GitHub <small>rhiever/drug-alcohol-mentions</small></a></p>
+.chart { 
+  background: #fff;
+}
+
+.axis line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+  shape-rendering: crispEdges;
+}
+
+.axis path {
+  fill: none;
+  stroke: #000;
+  stroke-width: 0px;
+  shape-rendering: crispEdges;
+}
+
+</style>
+
+<title>Drug and alcohol mentions in movies, 1984-2013</title>
+
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<center>
+<h1>Drug and alcohol mentions in movies, 1984-2013</h1>
+<div class="chart">
+</div>
+</center>
+
+<script>
+
+chart("drug-alcohol-category-mentions.csv");
+
+var datearray = [];
+var colorrange = [];
 
 
-        <ul>
-          <li><a href="https://github.com/rhiever/drug-alcohol-mentions/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/rhiever/drug-alcohol-mentions/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/rhiever/drug-alcohol-mentions">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+function chart(csvpath) {
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+colorrange = ["#385370", "#4c7097", "#5d84ad", "#84a2c1", "#91acc8"];
+//["#B30000", "#E34A33", "#FC8D59", "#FDBB84", "#FDD49E", "#FEF0D9"];
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+strokecolor = colorrange[0];
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+var format = d3.time.format("%Y");
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+var margin = {top: 10, right: 50, bottom: 30, left: 50};
+var width = 1000;//document.body.clientWidth - margin.left - margin.right - 100;
+var height = 625;//600 - margin.top - margin.bottom;
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "remove")
+    .style("position", "absolute")
+    .style("z-index", "20")
+    .style("visibility", "hidden")
+    .style("top", "30px")
+    .style("left", "55px")
+    .style("background-color", "rgba(256, 256, 256, 0.9)")
+    //.style("width", "90px")
+    //.style("height", "65px")
+    .style("padding", "10px")
+    .style("font", "14px helvetica");
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+var x = d3.time.scale()
+    .range([3, width - 3]);
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+var y = d3.scale.linear()
+    .range([height - 5, 0]);
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+var z = d3.scale.category20();//ordinal()
+    //.range(colorrange);
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .ticks(d3.time.years, 5);
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+var stack = d3.layout.stack()
+    .offset("silhouette")
+    .values(function(d) { return d.values; })
+    .x(function(d) { return d.date; })
+    .y(function(d) { return d.value; });
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/rhiever">rhiever</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
-</html>
+var nest = d3.nest()
+    .key(function(d) { return d.key; });
+
+var area = d3.svg.area()
+    .interpolate("cardinal")
+    .x(function(d) { return x(d.date); })
+    .y0(function(d) { return y(d.y0); })
+    .y1(function(d) { return y(d.y0 + d.y); });
+
+var svg = d3.select(".chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var graph = d3.csv(csvpath, function(data) {
+  data.forEach(function(d) {
+    d.date = format.parse(d.date);
+    d.value = +d.value;
+  });
+
+  var layers = stack(nest.entries(data));
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
+
+  svg.selectAll(".layer")
+      .data(layers)
+    .enter().append("path")
+      .attr("class", "layer")
+      .attr("d", function(d) { return area(d.values); })
+      .style("fill", function(d, i) { return z(i); });
+
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.selectAll(".layer")
+    .attr("opacity", 1)
+    .on("mouseover", function(d, i) {
+      svg.selectAll(".layer").transition()
+      .duration(250)
+      .attr("opacity", function(d, j) {
+        return j != i ? 0.3 : 1;
+        })
+      })
+
+    .on("mousemove", function(d, i) {
+      mousex = d3.mouse(this);
+      mousex = mousex[0];
+      var invertedx = x.invert(mousex);
+      invertedx = invertedx.getFullYear();// + invertedx.getDate();
+      var selected = (d.values);
+      for (var k = 0; k < selected.length; k++) {
+        datearray[k] = selected[k].date
+        datearray[k] = datearray[k].getFullYear();// + datearray[k].getDate();
+      }
+
+      mousedate = datearray.indexOf(invertedx);
+
+      d3.select(this)
+      .classed("hover", true)
+      .attr("stroke", strokecolor)
+      .attr("stroke-width", "0.5px"), 
+      tooltip.html("<strong>" + d.key + "</strong><br />" + Math.round(d.values[mousedate].value * 100) / 100 + " mentions per movie in " + x.invert(mousex).getFullYear())
+      .style("visibility", "visible");
+      
+    })
+    .on("mouseout", function(d, i) {
+     svg.selectAll(".layer")
+      .transition()
+      .duration(250)
+      .attr("opacity", "1");
+      d3.select(this)
+      .classed("hover", false)
+      .attr("stroke-width", "0px"),
+      tooltip.html("<strong>" + d.key + "</strong><br />" + Math.round(d.values[mousedate].value * 100) / 100 + " mentions per movie in " + x.invert(mousex).getFullYear())
+      .style("visibility", "hidden");
+  })
+
+  d3.select(".chart")
+      .on("mousemove", function(){  
+         mouse = d3.mouse(this);
+         mousex = mouse[0];
+         mousey = mouse[1];
+         
+         xTooltipOffset = 0;
+         //if (mousex < 350) xTooltipOffset *= -0.2;
+         tooltip.style("left", mousex + xTooltipOffset + "px");
+         
+         yTooltipOffset = 90;
+         //if (mousey < 125) yTooltipOffset /= -0.4;
+         tooltip.style("top", mousey + yTooltipOffset + "px");
+         })
+      .on("mouseover", function(){  
+         mouse = d3.mouse(this);
+         mousex = mouse[0];
+         mousey = mouse[1];
+         
+         xTooltipOffset = 0;
+         //if (mousex < 350) xTooltipOffset *= -0.2;
+         tooltip.style("left", mousex + xTooltipOffset + "px");
+         
+         yTooltipOffset = 90;
+         //if (mousey < 125) yTooltipOffset /= -0.4;
+         tooltip.style("top", mousey + yTooltipOffset + "px");
+         });
+});
+}
+</script>
