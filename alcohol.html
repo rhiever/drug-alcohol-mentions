@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 14px sans-serif;
+}
+
+.chart { 
+  background: #fff;
+}
+
+.axis line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+  shape-rendering: crispEdges;
+}
+
+.axis path {
+  fill: none;
+  stroke: #000;
+  stroke-width: 0px;
+  shape-rendering: crispEdges;
+}
+
+</style>
+
+<title>Alcohol mentions in movies, 1984-2013</title>
+
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<center>
+<h1>Alcohol mentions in movies, 1984-2013</h1>
+<div class="chart">
+</div>
+</center>
+
+<script>
+
+chart("alcohol-counts-per-movie.csv");
+
+var datearray = [];
+var colorrange = [];
+
+
+function chart(csvpath) {
+
+colorrange = ["#385370", "#4c7097", "#5d84ad", "#84a2c1", "#91acc8"];
+//["#B30000", "#E34A33", "#FC8D59", "#FDBB84", "#FDD49E", "#FEF0D9"];
+
+strokecolor = colorrange[0];
+
+var format = d3.time.format("%Y");
+
+var margin = {top: 10, right: 50, bottom: 30, left: 50};
+var width = 1000;//document.body.clientWidth - margin.left - margin.right - 100;
+var height = 625;//600 - margin.top - margin.bottom;
+
+var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "remove")
+    .style("position", "absolute")
+    .style("z-index", "20")
+    .style("visibility", "hidden")
+    .style("top", "30px")
+    .style("left", "55px")
+    .style("background-color", "rgba(256, 256, 256, 0.9)")
+    //.style("width", "90px")
+    //.style("height", "65px")
+    .style("padding", "10px")
+    .style("font", "14px helvetica");
+
+var x = d3.time.scale()
+    .range([3, width - 3]);
+
+var y = d3.scale.linear()
+    .range([height - 5, 0]);
+
+var z = d3.scale.category20();//ordinal()
+    //.range(colorrange);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .ticks(d3.time.years, 5);
+
+var stack = d3.layout.stack()
+    .offset("silhouette")
+    .values(function(d) { return d.values; })
+    .x(function(d) { return d.date; })
+    .y(function(d) { return d.value; });
+
+var nest = d3.nest()
+    .key(function(d) { return d.key; });
+
+var area = d3.svg.area()
+    .interpolate("cardinal")
+    .x(function(d) { return x(d.date); })
+    .y0(function(d) { return y(d.y0); })
+    .y1(function(d) { return y(d.y0 + d.y); });
+
+var svg = d3.select(".chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var graph = d3.csv(csvpath, function(data) {
+  data.forEach(function(d) {
+    d.date = format.parse(d.date);
+    d.value = +d.value;
+  });
+
+  var layers = stack(nest.entries(data));
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
+
+  svg.selectAll(".layer")
+      .data(layers)
+    .enter().append("path")
+      .attr("class", "layer")
+      .attr("d", function(d) { return area(d.values); })
+      .style("fill", function(d, i) { return z(i); });
+
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.selectAll(".layer")
+    .attr("opacity", 1)
+    .on("mouseover", function(d, i) {
+      svg.selectAll(".layer").transition()
+      .duration(250)
+      .attr("opacity", function(d, j) {
+        return j != i ? 0.3 : 1;
+        })
+      })
+
+    .on("mousemove", function(d, i) {
+      mousex = d3.mouse(this);
+      mousex = mousex[0];
+      var invertedx = x.invert(mousex);
+      invertedx = invertedx.getFullYear();// + invertedx.getDate();
+      var selected = (d.values);
+      for (var k = 0; k < selected.length; k++) {
+        datearray[k] = selected[k].date
+        datearray[k] = datearray[k].getFullYear();// + datearray[k].getDate();
+      }
+
+      mousedate = datearray.indexOf(invertedx);
+
+      d3.select(this)
+      .classed("hover", true)
+      .attr("stroke", strokecolor)
+      .attr("stroke-width", "0.5px"), 
+      tooltip.html("<strong>" + d.key + "</strong><br />" + Math.round(d.values[mousedate].value * 100) / 100 + " mentions per movie in " + x.invert(mousex).getFullYear())
+      .style("visibility", "visible");
+      
+    })
+    .on("mouseout", function(d, i) {
+     svg.selectAll(".layer")
+      .transition()
+      .duration(250)
+      .attr("opacity", "1");
+      d3.select(this)
+      .classed("hover", false)
+      .attr("stroke-width", "0px"),
+      tooltip.html("<strong>" + d.key + "</strong><br />" + Math.round(d.values[mousedate].value * 100) / 100 + " mentions per movie in " + x.invert(mousex).getFullYear())
+      .style("visibility", "hidden");
+  })
+
+  d3.select(".chart")
+      .on("mousemove", function(){  
+         mouse = d3.mouse(this);
+         mousex = mouse[0];
+         mousey = mouse[1];
+         
+         xTooltipOffset = 0;
+         //if (mousex < 350) xTooltipOffset *= -0.2;
+         tooltip.style("left", mousex + xTooltipOffset + "px");
+         
+         yTooltipOffset = 90;
+         //if (mousey < 125) yTooltipOffset /= -0.4;
+         tooltip.style("top", mousey + yTooltipOffset + "px");
+         })
+      .on("mouseover", function(){  
+         mouse = d3.mouse(this);
+         mousex = mouse[0];
+         mousey = mouse[1];
+         
+         xTooltipOffset = 0;
+         //if (mousex < 350) xTooltipOffset *= -0.2;
+         tooltip.style("left", mousex + xTooltipOffset + "px");
+         
+         yTooltipOffset = 90;
+         //if (mousey < 125) yTooltipOffset /= -0.4;
+         tooltip.style("top", mousey + yTooltipOffset + "px");
+         });
+});
+}
+</script>
