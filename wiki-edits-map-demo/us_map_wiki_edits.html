@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<style>
+        .map { position: relative; margin: 0 auto; width: 1000px; height: 500px;}
+</style>
+
+<title>The most controversial Wiki pages across the U.S.</title>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="http://datamaps.github.io/scripts/datamaps.usa.min.js"></script>
+
+<br />
+
+<center>
+<h1>The most controversial Wiki pages across the U.S.</h1>
+</center>
+
+<br />
+
+<div class="map" id="us_map_most_wiki_edits"></div>
+
+<script>
+var job_postings = new Datamap({
+  scope: 'usa',
+  element: document.getElementById('us_map_most_wiki_edits'),
+  geographyConfig: {
+    highlightBorderColor: '#fff',
+   popupTemplate: function(geography, data) {
+      return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong> <br />' + data.fillKey + '</div>'
+    },
+    highlightBorderWidth: 3
+  },
+
+  fills: {
+  'Cannabis_(drug)': '#2ca02c',
+  'Methamphetamine': '#1f77b4',
+  'Lysergic_acid_diethylamide': '#ff7f0e',
+  'MDMA': '#d62728',
+  'Other': '#7F7F7F',
+  defaultFill: '#7F7F7F'
+},
+data:{
+  "WA": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.85
+  },
+
+  "DE": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.08
+  },
+
+  "WI": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.51
+  },
+
+  "WV": {
+      "fillKey": "Peyote",
+      "value": 0.76
+  },
+
+  "HI": {
+      "fillKey": "Kava",
+      "value": 2.49
+  },
+
+  "FL": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 0.64
+  },
+
+  "WY": {
+      "fillKey": "Methamphetamine",
+      "value": 1.89
+  },
+
+  "NH": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 5.36
+  },
+
+  "NJ": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.45
+  },
+
+  "NM": {
+      "fillKey": "Methamphetamine",
+      "value": 0.82
+  },
+
+  "TX": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 0.5
+  },
+
+  "LA": {
+      "fillKey": "Heroin",
+      "value": 0.43
+  },
+
+  "NC": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 0.63
+  },
+
+  "ND": {
+      "fillKey": "Methamphetamine",
+      "value": 3.04
+  },
+
+  "NE": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 0.64
+  },
+
+  "TN": {
+      "fillKey": "Lysergic_acid_diethylamide",
+      "value": 0.55
+  },
+
+  "NY": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.29
+  },
+
+  "PA": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.28
+  },
+
+  "RI": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 2.0
+  },
+
+  "NV": {
+      "fillKey": "Craps",
+      "value": 1.08
+  },
+
+  "VA": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 0.85
+  },
+
+  "CO": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.21
+  },
+
+  "AK": {
+      "fillKey": "Methamphetamine",
+      "value": 2.58
+  },
+
+  "AL": {
+      "fillKey": "N,N-Dimethyltryptamine",
+      "value": 1.2
+  },
+
+  "AR": {
+      "fillKey": "Poppers",
+      "value": 1.89
+  },
+
+  "VT": {
+      "fillKey": "Oxycodone",
+      "value": 2.07
+  },
+
+  "IL": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.35
+  },
+
+  "GA": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 0.83
+  },
+
+  "IN": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 0.85
+  },
+
+  "IA": {
+      "fillKey": "Ethanol",
+      "value": 2.46
+  },
+
+  "OK": {
+      "fillKey": "MDMA",
+      "value": 1.35
+  },
+
+  "AZ": {
+      "fillKey": "Methamphetamine",
+      "value": 0.81
+  },
+
+  "CA": {
+      "fillKey": "MDMA",
+      "value": 1.06
+  },
+
+  "ID": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.61
+  },
+
+  "CT": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.59
+  },
+
+  "ME": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.58
+  },
+
+  "MD": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.23
+  },
+
+  "MA": {
+      "fillKey": "Lysergic_acid_diethylamide",
+      "value": 1.97
+  },
+
+  "OH": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 0.95
+  },
+
+  "UT": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.1
+  },
+
+  "MO": {
+      "fillKey": "Cocaine",
+      "value": 0.93
+  },
+
+  "MN": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.64
+  },
+
+  "MI": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.02
+  },
+
+  "KS": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 0.73
+  },
+
+  "MT": {
+      "fillKey": "Methamphetamine",
+      "value": 1.38
+  },
+
+  "MS": {
+      "fillKey": "Nicotine",
+      "value": 0.37
+  },
+
+  "SC": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 0.8
+  },
+
+  "KY": {
+      "fillKey": "Tobacco",
+      "value": 0.75
+  },
+
+  "OR": {
+      "fillKey": "Methamphetamine",
+      "value": 2.37
+  },
+
+  "SD": {
+      "fillKey": "Cannabis_(drug)",
+      "value": 1.78
+  }
+}
+});
+
+//job_postings.labels();
+job_postings.legend();
+</script>
+
+<br />
+<br />
+<br />
+
+<center>
+<h1>The most controversial Wiki pages across the U.S.</h1>
+
+States are binned into <a href="https://onlinecourses.science.psu.edu/stat100/sites/onlinecourses.science.psu.edu.stat100/files/lesson03/quartiles.gif">quartiles</a>: bottom 25%, mid-bottom 25%, mid-upper 25%, and upper 25% of the data
+
+</center>
+
+
+<div class="map" id="us_map_cannabis_edits"></div>
+
+<script>
+var job_postings = new Datamap({
+  scope: 'usa',
+  element: document.getElementById('us_map_cannabis_edits'),
+  geographyConfig: {
+    highlightBorderColor: '#fff',
+   popupTemplate: function(geography, data) {
+      return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong> <br />' + data.fillKey + '</div>'
+    },
+    highlightBorderWidth: 3
+  },
+
+  fills: {
+  'Least edits': '#7bdb7b',
+  'Fewer edits': '#3dca3d',
+  'More edits': '#2ca02c',
+  'Most edits': '#1f721f',
+  defaultFill: '#7F7F7F'
+},
+data:{
+  "NH": {
+      "fillKey": "Most edits",
+      "value": 5.36
+  },
+
+  "VT": {
+      "fillKey": "Most edits",
+      "value": 2.07
+  },
+
+  "RI": {
+      "fillKey": "Most edits",
+      "value": 2.0
+  },
+
+  "WA": {
+      "fillKey": "Most edits",
+      "value": 1.85
+  },
+
+  "SD": {
+      "fillKey": "Most edits",
+      "value": 1.78
+  },
+
+  "MN": {
+      "fillKey": "Most edits",
+      "value": 1.64
+  },
+
+  "AK": {
+      "fillKey": "Most edits",
+      "value": 1.63
+  },
+
+  "MA": {
+      "fillKey": "Most edits",
+      "value": 1.63
+  },
+
+  "ID": {
+      "fillKey": "Most edits",
+      "value": 1.61
+  },
+
+  "CT": {
+      "fillKey": "Most edits",
+      "value": 1.59
+  },
+
+  "ME": {
+      "fillKey": "Most edits",
+      "value": 1.58
+  },
+
+  "OR": {
+      "fillKey": "Most edits",
+      "value": 1.58
+  },
+
+  "WI": {
+      "fillKey": "Most edits",
+      "value": 1.51
+  },
+
+  "NJ": {
+      "fillKey": "More edits",
+      "value": 1.45
+  },
+
+  "IL": {
+      "fillKey": "More edits",
+      "value": 1.35
+  },
+
+  "NY": {
+      "fillKey": "More edits",
+      "value": 1.29
+  },
+
+  "PA": {
+      "fillKey": "More edits",
+      "value": 1.28
+  },
+
+  "MD": {
+      "fillKey": "More edits",
+      "value": 1.23
+  },
+
+  "CO": {
+      "fillKey": "More edits",
+      "value": 1.21
+  },
+
+  "WY": {
+      "fillKey": "More edits",
+      "value": 1.2
+  },
+
+  "UT": {
+      "fillKey": "More edits",
+      "value": 1.1
+  },
+
+  "DE": {
+      "fillKey": "More edits",
+      "value": 1.08
+  },
+
+  "MI": {
+      "fillKey": "More edits",
+      "value": 1.02
+  },
+
+  "AR": {
+      "fillKey": "More edits",
+      "value": 0.98
+  },
+
+  "OH": {
+      "fillKey": "More edits",
+      "value": 0.95
+  },
+
+  "CA": {
+      "fillKey": "Fewer edits",
+      "value": 0.94
+  },
+
+  "NV": {
+      "fillKey": "Fewer edits",
+      "value": 0.93
+  },
+
+  "MT": {
+      "fillKey": "Fewer edits",
+      "value": 0.89
+  },
+
+  "IN": {
+      "fillKey": "Fewer edits",
+      "value": 0.85
+  },
+
+  "VA": {
+      "fillKey": "Fewer edits",
+      "value": 0.85
+  },
+
+  "GA": {
+      "fillKey": "Fewer edits",
+      "value": 0.83
+  },
+
+  "ND": {
+      "fillKey": "Fewer edits",
+      "value": 0.83
+  },
+
+  "SC": {
+      "fillKey": "Fewer edits",
+      "value": 0.8
+  },
+
+  "KS": {
+      "fillKey": "Fewer edits",
+      "value": 0.73
+  },
+
+  "WV": {
+      "fillKey": "Fewer edits",
+      "value": 0.7
+  },
+
+  "AZ": {
+      "fillKey": "Fewer edits",
+      "value": 0.66
+  },
+
+  "NE": {
+      "fillKey": "Fewer edits",
+      "value": 0.64
+  },
+
+  "FL": {
+      "fillKey": "Least edits",
+      "value": 0.64
+  },
+
+  "NC": {
+      "fillKey": "Least edits",
+      "value": 0.63
+  },
+
+  "MO": {
+      "fillKey": "Least edits",
+      "value": 0.53
+  },
+
+  "TX": {
+      "fillKey": "Least edits",
+      "value": 0.5
+  },
+
+  "HI": {
+      "fillKey": "Least edits",
+      "value": 0.5
+  },
+
+  "OK": {
+      "fillKey": "Least edits",
+      "value": 0.49
+  },
+
+  "AL": {
+      "fillKey": "Least edits",
+      "value": 0.48
+  },
+
+  "KY": {
+      "fillKey": "Least edits",
+      "value": 0.43
+  },
+
+  "NM": {
+      "fillKey": "Least edits",
+      "value": 0.43
+  },
+
+  "IA": {
+      "fillKey": "Least edits",
+      "value": 0.42
+  },
+
+  "TN": {
+      "fillKey": "Least edits",
+      "value": 0.38
+  },
+
+  "LA": {
+      "fillKey": "Least edits",
+      "value": 0.37
+  },
+
+  "MS": {
+      "fillKey": "Least edits",
+      "value": 0.23
+  }
+}
+});
+
+//job_postings.labels();
+job_postings.legend();
+</script>
